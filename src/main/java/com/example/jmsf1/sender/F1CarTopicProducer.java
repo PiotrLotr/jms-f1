@@ -15,7 +15,8 @@ import java.util.ArrayList;
 
 @Component
 @RequiredArgsConstructor
-public class F1CarQueueProducer {
+public class F1CarTopicProducer {
+
     private final JmsTemplate jmsTemplate;
 
 
@@ -33,9 +34,8 @@ public class F1CarQueueProducer {
                 )
                 .build();
         jmsTemplate.convertAndSend(JmsConfig.TOPIC_PIT_STOP, message);
-        System.out.println("F1CarQueueProducer.sendF1CarStateMessage - sent message: " + "\n" + message);
+        System.out.println("F1CarTopicProducer.sendF1CarStateMessage - sent message: " + "\n" + message);
     }
-
 
     private static String translateInput(double value){
         if(value == 1){

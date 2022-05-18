@@ -2,14 +2,20 @@ package com.example.jmsf1.receiver;
 
 import com.example.jmsf1.configuration.JmsConfig;
 import com.example.jmsf1.messages.F1CarStateMessage;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.Session;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,6 +25,9 @@ public class LoggerReceiver {
 
     private static FileWriter fileWriter;
     private static String logFilePath= "c:\\Users\\pwron\\f1Logs.json";
+    private static File file = new File(logFilePath);
+    private static int logCounter = 0;
+    private static JSONArray listOfStates = new JSONArray();
 
 
     @JmsListener(destination = JmsConfig.TOPIC_PIT_STOP, containerFactory = "topicConnectionFactory")
@@ -29,25 +38,38 @@ public class LoggerReceiver {
         System.out.println("LoggerReceiver.receiveF1CarStateMessage, message: "+convertedMessage);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("F1CarState", "what the fuck?");
+        jsonObject.put(logCounter, convertedMessage);
+        listOfStates.add(jsonObject);
+        logCounter++;
 
         try {
-            File file = new File(logFilePath);
             file.setWritable(true);
             file.setReadable(true);
-
             if(!file.exists()){
                 file.createNewFile();
             }
             fileWriter = new FileWriter(file);
-            fileWriter.write(jsonObject.toJSONString());
+            fileWriter.write(String.valueOf(listOfStates));
             fileWriter.close();
 
             System.out.println("LoggerReceiver.receiveF1CarStateMessage: JSON Object Successfully written to the file");
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Bean
+    public DynamicDestinationResolver destinationResolver() {
+        return new DynamicDestinationResolver() {
+            @Override
+            public Destination resolveDestinationName(Session session, String
+                    destinationName, boolean pubSubDomain) throws JMSException {
+                if (destinationName.endsWith(".TOPIC")) {
+                    pubSubDomain = true;
+                }
+                return super.resolveDestinationName(session, destinationName, pubSubDomain);
+            }
+        };
     }
 
 }

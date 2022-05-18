@@ -22,6 +22,7 @@ import javax.jms.Session;
 public class JmsConfig {
 
     public static final String TOPIC_PIT_STOP = "PIT.STOP.TOPIC";
+    public static final String QUEUE_SEND_AND_RECEIVE = "SEND.AND.RECEIVE.QUEUE";
 
     @Bean
     public JmsListenerContainerFactory<?>
@@ -44,19 +45,9 @@ public class JmsConfig {
         return factory;
     }
 
-    @Bean
-    public DynamicDestinationResolver destinationResolver() {
-        return new DynamicDestinationResolver() {
-            @Override
-            public Destination resolveDestinationName(Session session, String
-                    destinationName, boolean pubSubDomain) throws JMSException {
-                if (destinationName.endsWith(".QUEUE")) {
-                    pubSubDomain = true;
-                }
-                return super.resolveDestinationName(session, destinationName, pubSubDomain);
-            }
-        };
-    }
+
+
+
 
     @Bean
     public MessageConverter messageConverter() {
