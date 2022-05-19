@@ -19,7 +19,6 @@ public class F1CarTopicProducer {
 
     private final JmsTemplate jmsTemplate;
 
-
     @Scheduled(fixedRate = 15000)
     public void sendF1CarStateMessage() {
         ArrayList<Double> carParameters = F1Car.getF1CarParameters();
@@ -39,10 +38,12 @@ public class F1CarTopicProducer {
 
     private static String translateInput(double value){
         if(value == 1){
-            return "Exceeded!";
-        } else {
-            return "not exceeded";
+            return " EXCEEDED ";
         }
+        if (value == 2){
+            return " ! CRITICAL ! ";
+        }
+        return " NORMAL ";
     }
 
 

@@ -23,6 +23,9 @@ public class JmsConfig {
 
     public static final String TOPIC_PIT_STOP = "PIT.STOP.TOPIC";
     public static final String QUEUE_SEND_AND_RECEIVE = "SEND.AND.RECEIVE.QUEUE";
+    public static final String QUEUE_CAR_DRIVER = "CAR.DRIVER.QUEUE";
+    public static final String TOPIC_PREPARE_TO_PIT_STOP = "PREPARE.TO.PIT.STOP.TOPIC";
+
 
     @Bean
     public JmsListenerContainerFactory<?>
@@ -45,9 +48,19 @@ public class JmsConfig {
         return factory;
     }
 
-
-
-
+    @Bean
+    public DynamicDestinationResolver destinationResolver() {
+        return new DynamicDestinationResolver() {
+            @Override
+            public Destination resolveDestinationName(Session session, String
+                    destinationName, boolean pubSubDomain) throws JMSException {
+                if (destinationName.endsWith(".TOPIC")) {
+                    pubSubDomain = true;
+                }
+                return super.resolveDestinationName(session, destinationName, pubSubDomain);
+            }
+        };
+    }
 
     @Bean
     public MessageConverter messageConverter() {

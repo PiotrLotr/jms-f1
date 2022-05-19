@@ -58,18 +58,4 @@ public class LoggerReceiver {
         }
     }
 
-    @Bean
-    public DynamicDestinationResolver destinationResolver() {
-        return new DynamicDestinationResolver() {
-            @Override
-            public Destination resolveDestinationName(Session session, String
-                    destinationName, boolean pubSubDomain) throws JMSException {
-                if (destinationName.endsWith(".TOPIC")) {
-                    pubSubDomain = true;
-                }
-                return super.resolveDestinationName(session, destinationName, pubSubDomain);
-            }
-        };
-    }
-
 }
